@@ -1,0 +1,10 @@
+Package: bcbioLite
+Title: bcbioLite.
+Version: 0.0.0.9000
+Authors@R: person("Victor", "Barrera Burgos", email = "vbarrera@hpsh.harvard.edu", role = c("aut", "cre"))
+Description: Load results from BCBIO.
+Depends: R (>= 3.3.2)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1.9000
