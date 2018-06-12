@@ -1,6 +1,6 @@
 Package: bcbioLite
 Title: bcbioLite.
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: person("Victor", "Barrera Burgos", email = "vbarrera@hpsh.harvard.edu", role = c("aut", "cre"))
 Description: Load results from BCBIO.
 Depends: R (>= 3.3.2)
