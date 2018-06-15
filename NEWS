@@ -6,3 +6,7 @@
 * change names functions to easy to type strings
 * create example data to test further functions
 * create NEWS file
+
+## 0.0.0.9003
+
+* remove empty columns from metrics and metadata
