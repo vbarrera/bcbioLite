@@ -23,7 +23,6 @@ bcbreader <- function(projectDir){
     tx2gene = read.csv(tx2genes_file, sep=",", row.names=NULL, header=FALSE)
     txi.salmon = tximport(sf_files,
                           type="salmon",
-                          tx2gene=tx2gene,
                           countsFromAbundance="lengthScaledTPM")
     rawCounts = round(data.frame(txi.salmon$counts, check.names=FALSE),0) %>%
         as.matrix()
