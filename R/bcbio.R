@@ -21,8 +21,11 @@ bcbreader <- function(projectDir){
     names(sf_files) = rownames(sampleMetadata)
     # FIX check files exists and match sampleMetadata
     tx2gene = read.csv(tx2genes_file, sep=",", row.names=NULL, header=FALSE)
+    rownames(tx2gene) <- tx2gene$V1
     txi.salmon = tximport(sf_files,
                           type="salmon",
+                          tx2gene = tx2gene,
+                          ignoreTxVersion = TRUE,
                           countsFromAbundance="lengthScaledTPM")
     rawCounts = round(data.frame(txi.salmon$counts, check.names=FALSE),0) %>%
         as.matrix()
