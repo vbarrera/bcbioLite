@@ -1,15 +1,16 @@
 # 0.0.0.9
 
+## 0.0.0.9005
+
+* add coldata substitution
+* fix example data
+* add qc template and load example script
+
 ## 0.0.0.9004
 
 * add ignoreTxVersion = TRUE as bcbio tx2gene file no longer includes 
 transcript versions
 
-## 0.0.0.9005
-
-* add coldata substitution
-* fix example data
-* add qc template
 
 ## 0.0.0.9003
 
