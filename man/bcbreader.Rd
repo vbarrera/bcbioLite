@@ -4,7 +4,7 @@
 \alias{bcbreader}
 \title{bcbreader}
 \usage{
-bcbreader(projectDir)
+bcbreader(projectDir, sampleMetadata = NULL)
 }
 \arguments{
 \item{projectDir}{path to final bcbio project folder. Normally

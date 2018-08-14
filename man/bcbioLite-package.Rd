@@ -6,7 +6,7 @@
 \alias{bcbioLite-package}
 \title{bcbioLite}
 \description{
-bcbioLite
+Load results from BCBIO.
 }
 \author{
 \strong{Maintainer}: Victor Barrera \email{Barrera.Vic@gmail.com} (0000-0003-0590-4634)
