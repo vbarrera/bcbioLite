@@ -10,12 +10,12 @@
 bcbreader <- function(projectDir, sampleMetadata = NULL){
     library(dplyr)
     projectDir <- normalizePath(projectDir)
-    stopifnot(sampleMetadata)
     if (is.null(sampleMetadata)){
         sampleMetadata <- read.csv(file.path(projectDir,"metadata.csv"), row.names = 1)
     }else{
         sampleMetadata <- sampleMetadata
     }
+    stopifnot(!is.null(sampleMetadata))
     metrics <- import(file.path(projectDir,"multiqc","multiqc_data","multiqc_bcbio_metrics.txt"))
     metrics <- clean_names(metrics,case = "small_camel") %>% remove_empty("cols")
     sampleDirs = file.path(projectDir,"..", rownames(sampleMetadata))
