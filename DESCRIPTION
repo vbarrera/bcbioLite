@@ -1,6 +1,7 @@
 Package: bcbioLite
-Title: bcbioLite.
-Version: 0.0.0.9004
+Title: bcbioLite
+Date: 2018-08-14
+Version: 0.0.0.9005
 Authors@R: c(
     person(
         given = "Victor",
@@ -17,15 +18,17 @@ Authors@R: c(
         comment = c(ORCID = "0000-0002-3859-3249"))
     )
 Description: Load results from BCBIO.
-Depends: R (>= 3.3.2)
+Depends: R (>= 3.4.1)
 Imports: dplyr,
         DESeq2,
         janitor,
         tibble,
         rio,
         SummarizedExperiment,
+        S4Vectors,
         tximport
 License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1.9000
+Roxygen: list(markdown = TRUE)
