@@ -8,6 +8,7 @@
 #' @examples
 #' bcbreader()
 bcbreader <- function(projectDir, sampleMetadata = NULL){
+    library(rio)
     library(dplyr)
     projectDir <- normalizePath(projectDir)
     if (is.null(sampleMetadata)){
