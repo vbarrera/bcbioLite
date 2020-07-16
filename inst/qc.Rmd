@@ -1,0 +1,304 @@
+---
+title: "Quality control"
+author: "Lorena Pantano"
+date: "`r Sys.Date()`"
+bibliography: bibliography.bib
+output:
+    html_document:
+        code_folding: hide
+        df_print: paged
+        highlight: pygments
+        number_sections: false
+        self_contained: true
+        theme: paper
+        toc: true
+        toc_float:
+            collapsed: true
+            smooth_scroll: false
+params:
+    se: "data/se.rds"
+    color: "stiffness_condition"
+---
+
+```{r knitr, echo=FALSE, warning=FALSE, message=FALSE}
+# knitr ====
+library(knitr)
+opts_chunk$set(
+    autodep = TRUE,
+    bootstrap.show.code = FALSE,
+    cache = TRUE,
+    cache.lazy = TRUE,
+    dev = c("png", "pdf", "svg"),
+    fig.height = 6,
+    fig.width = 6,
+    highlight = TRUE,
+    message = FALSE,
+    prompt = TRUE,
+    tidy = TRUE,
+    warning = FALSE)
+opts_chunk$set(cache.path = "/Users/lpantano/tmp/cache/ngs_stiffness_rnaseq/",
+               fig.path = "./qc-figures/")
+```
+
+
+```{r setup, cache = FALSE}
+library(tidyverse)
+library(cowplot)
+library(SummarizedExperiment)
+library(DESeq2)
+library(vsn)
+library(DEGreport)
+se = readRDS(params$se)
+metrics = inner_join(metadata(se)[["metrics"]],
+                     colData(se) %>% as.data.frame %>% 
+                         rownames_to_column("sample"),
+                     by = "sample")
+rownames(metrics) = metrics[["sample"]]
+metrics = metrics[colnames(se),]
+
+# ggplot2 ====
+library(ggplot2)
+theme_set(theme_light(base_size = 7))
+theme_update(
+    legend.justification = "center",
+    legend.position = "bottom")
+```
+
+
+# Fit modeling
+
+Several quality metrics were first assessed to explore the fit of the model, before differential expression analysis was performed. We observe that the modeling fit is good.
+
+The plots below show the standard deviation of normalized counts (`normalized_counts`) using `log2()`, `rlog()`, and variance stabilizing (`vst()`) transformations by `rank(mean)`. The transformations greatly reduce the standard deviation, with `rlog()` stabilizing the variance best across the mean.
+
+```{r plot_mean_sd}
+meanSdPlot(assays(se)[["vst"]])
+```
+
+
+# Read metrics {.tabset}
+
+## Total reads
+
+```{r plot_total_reads}
+metrics %>%
+    ggplot(aes(x=sample, y=totalReads)) +
+    geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+```
+
+
+## Mapped reads
+
+The number of mapped reads should correspond to the number of total reads.
+
+```{r plot_mapped_reads}
+metrics %>%
+    ggplot(aes(x=sample, y=mappedReads)) +
+    geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+```
+
+
+## Mapping rate
+
+The genomic mapping rate represents the percentage of reads mapping to the reference genome. Low mapping rates are indicative of sample contamination, poor sequencing quality or other artifacts.
+
+```{r plot_mapping_rate}
+metrics %>%
+    ggplot(aes(x=sample, y=mappedReads/totalReads * 100)) +
+        geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+```
+
+
+## Number of genes detected
+
+```{r plot_genes_detected}
+colSums(assays(se)[["raw"]]>0) %>% 
+    data.frame(sample = names(.), n_genes = ., stringsAsFactors = FALSE) %>%
+    inner_join(metrics, by  ="sample") %>% 
+    ggplot(aes(x=sample, y=n_genes)) +
+    geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+
+```
+
+
+## Gene detection saturation
+
+We should observe a linear trend in the number of genes detected with the number of mapped reads, which indicates that the sample input was not overloaded.
+
+```{r plot_gene_saturation}
+colSums(assays(se)[["raw"]]>0) %>% 
+    data.frame(sample = names(.), n_genes = ., stringsAsFactors = FALSE) %>%
+    inner_join(metrics, by  ="sample") %>% 
+    ggplot(aes(x=log10(totalReads), y=n_genes)) +
+        geom_point()
+
+```
+
+
+## Exonic mapping rate
+
+Ideally, at least 60% of total reads should map to exons.
+
+```{r plot_exonic_mapping_rate}
+metrics %>%
+    ggplot(aes(x=sample, y=exonicRate * 100)) +
+        geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+
+```
+
+
+## Intronic mapping rate
+
+The majority of reads should map to exons and not introns.
+
+```{r plot_intronic_mapping_rate}
+metrics %>%
+    ggplot(aes(x=sample, y=intronicRate * 100)) +
+        geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+
+```
+
+
+## rRNA mapping rate
+
+Samples should have a ribosomal RNA (rRNA) contamination rate below 10%.
+
+```{r plot_rrna_mapping_rate}
+metrics %>%
+    ggplot(aes(x=sample, y=rRnaRate * 100)) +
+        geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+
+```
+
+
+## 5'->3' bias
+
+```{r plot_53_bias}
+metrics %>%
+    ggplot(aes(x=sample, y=x5_3Bias)) +
+        geom_bar(stat = "identity", aes_string(fill = params$color)) +
+    coord_flip() 
+
+```
+
+
+## Counts per gene
+
+Generally, we expect similar count spreads for all genes between samples unless the library sizes or total RNA expression are different. The log10 TMM-normalized counts per gene normalization method [@Robinson:2010dd] equates the overall expression levels of genes between samples under the assumption that the majority of them are not differentially expressed. Therefore, by normalizing for total RNA expression by sample, we expect the spread of the log10 TMM-normalized counts per gene to be similar for every sample.
+
+```{r plot_counts_per_gene}
+as.data.frame(assays(se)[["raw"]]) %>% 
+gather(sample, counts) %>%
+    inner_join(metrics, by  ="sample") %>%
+    ggplot(aes(sample, log2(counts+1))) +
+    geom_boxplot()
+
+```
+
+
+## Count density
+
+Generally, we expect similar count spreads for all genes between samples unless the total expressed RNA per sample is different.
+
+```{r plot_count_density}
+as.data.frame(assays(se)[["raw"]]) %>% 
+gather(sample, counts) %>%
+    inner_join(metrics, by  ="sample") %>%  
+    ggplot(aes(log2(counts+1), group = sample)) +
+    geom_density(aes_string(color = params$color))
+```
+
+
+## Biotype
+
+```{r biotype, results='asis', fig.width=11, fig.height=11, eval = FALSE}
+asis_output("Different RNA-seq processing methods can preferentially capture a subset of the RNA species from the total RNA. For example, polyA selection should select for mostly coding genes and skip a large percentage of non-polyA non-coding RNA. Here we make boxplots of the TPM for the top 12 biotypes with the most genes assigned to them for each sample.")
+
+keep_biotypes <- rowData(se) %>%
+    as.data.frame() %>%
+    dplyr::filter(!is.na(gene_id)) %>% 
+    group_by(gene_biotype) %>%
+    summarise(nBiotype = n()) %>%
+    arrange(-nBiotype) %>%
+    top_n(8, wt = nBiotype) %>%
+    pull(gene_biotype)
+biotype_tpm <- assays(se)[["vst"]] %>%
+    as.data.frame() %>%
+    rownames_to_column("gene_id") %>%
+    gather(key = sample, value = count, -gene_id) %>%
+    left_join(as.data.frame(rowData(se)), by = "gene_id") %>%
+    dplyr::filter(gene_biotype %in% keep_biotypes) %>%
+    dplyr::filter(count > 0) %>% 
+    left_join(metrics,
+              by = "sample")
+
+ggplot(
+    data = biotype_tpm,
+    mapping = aes(
+        x = sample,
+        y = count
+    )
+) +
+    geom_violin(
+        aes_string(fill = params$color),
+        color = "black",
+        scale = "area"
+    ) +
+    scale_y_log10() +
+    facet_wrap(~gene_biotype, scales = "free_y") +
+    labs(
+        title = "tpm per biotype",
+        x = NULL,
+        y = "transcripts per million (tpm)"
+    ) +
+    guides(fill = FALSE) +
+    theme(axis.text.x = element_blank())
+```
+
+# Sample similarity analysis
+
+Before performing similarity analysis, we transform counts to log2, which acts to minimize large differences in sequencing depth and helps normalize all samples to a similar dynamic range. For RNA-seq count data, variance increases with the mean. Logarithmic transformation of normalized count values with a small pseudocount will account for large variations seen between the highest expressing genes so that these genes won't dominate the PCA plots. However, due to the strong noise among low count values due to Poisson, the general log2 transformation will amplify this noise, and instead, low count genes will now dominate the PCA plots. So instead, we use a regularized log ("rlog"; base 2) transformation that gives similar results for high counts as a log2 transformation but also shrinks the values of low counts towards the genes’ average across samples. We do this with the rlog() function in the [DESeq2][] package [@DESeq2], which we will later use for differential gene expression analysis.
+
+## Principal component analysis (PCA) {.tabset}
+PCA [@Jolliffe:2002wx] is a multivariate technique that allows us to summarize the systematic patterns of variations in the data. PCA takes the expression levels for genes and transforms it in principal component space, reducing each sample into one point. Thereby, we can separate samples by expression variation, and identify potential sample outliers. The PCA plot is a way to look at how samples are clustering.
+
+```{r pca}
+# Add shape = "columna_name" to add another layer of difference
+degPCA(assays(se)[["vst"]], colData(se), params$color)
+```
+
+## Hierarchical clustering
+
+Inter-correlation analysis (ICA) is another way to look at how well samples cluster by plotting the correlation between the expression profiles of the samples.
+
+```{r heatmap, fig.width=8}
+library(pheatmap)
+annc = colData(se) %>% as.data.frame()
+pheatmap(cor(assays(se)[["vst"]]), color = palette(20),
+         annotation_col = annc, annotation_colors = degColors(annc),
+         show_colnames = FALSE, show_rownames = FALSE)
+```
+
+## Covariates correlation with PCs
+
+When multiple factors may influence the results of a given experiment, it is useful to assess which of them is responsible for the most variance as determined by PCA. We adapted the method described by Daily et al. where they integrated a method to correlate covariates with principal components values to determine the importance of each factor.
+
+Here we are showing the correlational analysis of the rlog transformed count data's principal components with the metadata covariates of interest. Significant correlations (FDR < 0.1) are shaded from blue (anti-correlated) to orange (correlated), with non-significant correlations shaded in gray.
+
+```{r covariates}
+degCovariates(assays(se)[["vst"]], metrics)
+```
+
+
+## R session
+
+```{r}
+devtools::session_info()
+```

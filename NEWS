@@ -1,0 +1,24 @@
+# 0.0.0.9
+
+## 0.0.0.9005
+
+* add coldata substitution
+* fix example data
+* add qc template and load example script
+
+## 0.0.0.9004
+
+* add ignoreTxVersion = TRUE as bcbio tx2gene file no longer includes 
+transcript versions
+
+
+## 0.0.0.9003
+
+* remove empty columns from metrics and metadata
+
+## 0.0.0.9002
+
+* add bcbrun to normalize SE object
+* change names functions to easy to type strings
+* create example data to test further functions
+* create NEWS file

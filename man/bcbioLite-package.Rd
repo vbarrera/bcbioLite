@@ -6,9 +6,14 @@
 \alias{bcbioLite-package}
 \title{bcbioLite}
 \description{
-bcbioLite
+Load results from BCBIO.
 }
 \author{
-\strong{Maintainer}: Victor Barrera Burgos \email{vbarrera@hpsh.harvard.edu}
+\strong{Maintainer}: Victor Barrera \email{Barrera.Vic@gmail.com} (0000-0003-0590-4634)
+
+Authors:
+\itemize{
+  \item Lorena Pantano \email{lorena.pantano@gmail.com} (0000-0002-3859-3249)
+}
 
 }
