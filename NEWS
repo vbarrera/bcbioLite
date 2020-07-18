@@ -1,5 +1,9 @@
 # 0.0.0.9
 
+## 0.0.0.9006
+
+* add bioconductor biocViews/Software to DESCRIPTION to solve dependencies.
+
 ## 0.0.0.9005
 
 * add coldata substitution

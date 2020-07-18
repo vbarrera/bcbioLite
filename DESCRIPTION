@@ -1,7 +1,7 @@
 Package: bcbioLite
 Title: bcbioLite
-Date: 2018-08-14
-Version: 0.0.0.9005
+Date: 2020-07-17
+Version: 0.0.0.9006
 Authors@R: c(
     person(
         given = "Victor",
@@ -27,6 +27,8 @@ Imports: dplyr,
         SummarizedExperiment,
         S4Vectors,
         tximport
+biocViews:
+	Software
 License: MIT
 Encoding: UTF-8
 LazyData: true
