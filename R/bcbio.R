@@ -8,8 +8,6 @@
 #' @examples
 #' bcbreader()
 bcbreader <- function(projectDir, sampleMetadata = NULL){
-    library(rio)
-    library(dplyr)
     projectDir <- normalizePath(projectDir)
     if (is.null(sampleMetadata)){
         sampleMetadata <- read.csv(file.path(projectDir,"metadata.csv"), row.names = 1)
@@ -76,7 +74,7 @@ bcbcoldata <- function(se, sampleMetadata){
     se
 }
 
-#' Normalize SummarizedExperiment from bcbreder function.
+#' Normalize SummarizedExperiment from bcbreader function.
 #'
 #' This function will detect if the object contains the slots from
 #' salmon quantification or featureCounts and normalize the data
