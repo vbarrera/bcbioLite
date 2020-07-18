@@ -26,7 +26,8 @@ Imports: dplyr,
         rio,
         SummarizedExperiment,
         S4Vectors,
-        tximport
+        tximport,
+        jsonlite
 biocViews:
 	Software
 License: MIT
