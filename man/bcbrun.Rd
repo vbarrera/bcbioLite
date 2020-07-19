@@ -2,7 +2,7 @@
 % Please edit documentation in R/bcbio.R
 \name{bcbrun}
 \alias{bcbrun}
-\title{Normalize SummarizedExperiment from bcbreder function.}
+\title{Normalize SummarizedExperiment from bcbreader function.}
 \usage{
 bcbrun(se, design = ~1)
 }

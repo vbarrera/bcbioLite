@@ -38,7 +38,8 @@ bcbreader <- function(projectDir, sampleMetadata = NULL){
         mutate_all(as.factor) %>%
         mutate_all(droplevels) %>%
         column_to_rownames() %>%
-        as("data.frame")
+        as("data.frame") %>%
+        remove_empty("cols")
 
     metadata <- list(metrics = metrics,
                      countsFromAbundance = txi.salmon$countsFromAbundance)
@@ -51,12 +52,12 @@ bcbreader <- function(projectDir, sampleMetadata = NULL){
 }
 
 #' Change colData information
-#' 
-#' This function will change the colData information from a 
+#'
+#' This function will change the colData information from a
 #' SummarizedExperiment object.
-#' 
+#'
 #' @param se SummarizedExperiment object.
-#' @examples 
+#' @examples
 #' data(se)
 #' bcbcoldata(se, colData(se))
 #' @export
@@ -66,7 +67,7 @@ bcbcoldata <- function(se, sampleMetadata){
     if (!(all(common  %in% colnames(se)))){
         message("samples in the new colData is different than")
         message("the samples already in the SE object.")
-        message("Only ussing common samples.")
+        message("Only using common samples.")
         message(paste(common, collapse = " "))
     }
     se <- se[, common]
@@ -114,3 +115,36 @@ bcbrun <- function(se, design = ~1){
     se
 }
 
+#' Add metrics to colData information
+#'
+#' This function adds the metrics data to the colData information from a
+#' SummarizedExperiment object. This helps the subsetting of
+#' SummarizedExperiment object while keeping the original values.
+#'
+#' @param se SummarizedExperiment object.
+#' @examples
+#' data(se)
+#' addMetrics2colData(se)
+#' @export
+addMetrics2colData <- function(se){
+    coldata_original <- colData(se)
+    metrics_original <- se@metadata$metrics
+    common <- intersect(rownames(coldata_original), metrics_original$sample)
+    if (!(all(common  %in% colnames(se)))){
+        message("samples in the new colData is different than")
+        message("the samples already in the SE object.")
+        message("Only using common samples.")
+        message(paste(common, collapse = " "))
+    }
+    se <- se[, common]
+
+    coldata_new <- coldata_original %>%
+        as.data.frame() %>%
+        rownames_to_column(var = "sample") %>%
+        inner_join(metrics_original, by = "sample") %>%
+        remove_rownames() %>%
+        column_to_rownames(var = "sample") %>%
+        as("DFrame")
+    colData(se) <- coldata_new
+    se
+}

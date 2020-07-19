@@ -12,6 +12,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{SummarizedExperiment}{\code{\link[SummarizedExperiment]{colData}}, \code{\link[SummarizedExperiment]{rowData}}}
+  \item{SummarizedExperiment}{\code{\link[SummarizedExperiment:SummarizedExperiment-class]{colData}}, \code{\link[SummarizedExperiment:SummarizedExperiment-class]{rowData}}}
 }}
 

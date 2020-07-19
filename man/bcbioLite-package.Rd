@@ -9,11 +9,11 @@
 Load results from BCBIO.
 }
 \author{
-\strong{Maintainer}: Victor Barrera \email{Barrera.Vic@gmail.com} (0000-0003-0590-4634)
+\strong{Maintainer}: Victor Barrera \email{Barrera.Vic@gmail.com} (\href{https://orcid.org/0000-0003-0590-4634}{ORCID})
 
 Authors:
 \itemize{
-  \item Lorena Pantano \email{lorena.pantano@gmail.com} (0000-0002-3859-3249)
+  \item Lorena Pantano \email{lorena.pantano@gmail.com} (\href{https://orcid.org/0000-0002-3859-3249}{ORCID})
 }
 
 }
