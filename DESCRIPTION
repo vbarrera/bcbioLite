@@ -1,7 +1,7 @@
 Package: bcbioLite
 Title: bcbioLite
-Date: 2020-07-17
-Version: 0.0.0.9006
+Date: 2020-07-18
+Version: 0.0.0.9007
 Authors@R: c(
     person(
         given = "Victor",
