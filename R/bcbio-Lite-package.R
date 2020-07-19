@@ -8,7 +8,7 @@
 #' @importFrom dplyr "%>%"
 #' @import rio
 #' @import DESeq2
-#' @importFrom S4Vectors DataFrame
+#' @importFrom S4Vectors DataFrame metadata
 #'
 "_PACKAGE"
 
